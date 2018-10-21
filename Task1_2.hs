@@ -8,6 +8,10 @@ import Prelude hiding (sin, cos, gcd)
 -- sin x = (-1) ^ n * x ^ (2 * n + 1) / (2 * n + 1)!  
 -- sin x = x - x ** 3 / (2 * 3) + x ** 5 / (5!)
 
+normalize :: Double -> Double
+normalize x =
+  mod' (x) (2 * pi)
+
 denomSin :: Double -> Double
 denomSin n = (2 * n * (2 * n + 1)) 
 
@@ -21,8 +25,9 @@ sinus x x_i n =
 
 sin :: Double -> Double
 sin x =
-  let n = 1 in
-    sinus x x n 
+  let n = 1
+      x_norm = normalize x in
+    sinus x_norm x_norm n 
 
 denomCos :: Double -> Double
 denomCos n = (2 * n - 1) * 2 * n 
@@ -38,8 +43,9 @@ cosinus x x_i n =
 -- косинус числа (формула Тейлора)
 cos :: Double -> Double
 cos x = 
-  let n = 1 in 
-    cosinus x 1 n
+  let n = 1
+      x_norm = normalize x in
+    cosinus x_norm 1 n
 
 -- наибольший общий делитель двух чисел
 gcd :: Integer -> Integer -> Integer
