@@ -4,7 +4,13 @@ import Todo(todo)
 
 -- Ассоциативный массив на основе бинарного дерева поиска
 -- Ключи - Integer, значения - произвольного типа
-data TreeMap v = ChangeMe 
+
+
+
+data TreeMap v = 
+  Key{ intValue :: Int }
+  | Value{ varName :: String }
+  | BinaryTerm{ left :: TreeMap, right :: TreeMap }
 
 -- Пустое дерево
 emptyTree :: TreeMap v
