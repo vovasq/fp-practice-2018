@@ -7,7 +7,7 @@ data WeirdPeanoNumber = Zero | Succ WeirdPeanoNumber | Pred WeirdPeanoNumber
 
 instance Eq WeirdPeanoNumber where
   (==) Zero Zero = True
-  (==) w1 w2 = (wpnToInteger w1) == (wpnToInteger w2)
+  (==) w1 w2     = (wpnToInteger w1) == (wpnToInteger w2)
 
 
 normalize :: WeirdPeanoNumber -> WeirdPeanoNumber
@@ -16,11 +16,11 @@ normalize w1 = normByInt Zero intNumber where
   normByInt w1 intNum 
     | intNum > 0 = normByInt (Succ w1) (intNum - 1)
     | intNum < 0 = normByInt (Pred w1) (intNum + 1)
-    | otherwise   = w1
+    | otherwise  = w1
 
 instance Show WeirdPeanoNumber where
   show x = showNorm (normalize x) where 
-    showNorm Zero = "Zero"
+    showNorm Zero     = "Zero"
     showNorm (Pred x) = "Pred " ++ (showNorm x)
     showNorm (Succ x) = "Succ " ++ (showNorm x)
        
@@ -36,7 +36,7 @@ wpnPlus (Succ w1) w2 = Succ (w2 + w1)
 wpnPlus (Pred w1) w2 = Pred (w2 + w1)
 
 wpnNegate :: WeirdPeanoNumber -> WeirdPeanoNumber
-wpnNegate Zero = Zero
+wpnNegate Zero      = Zero
 wpnNegate (Pred w1) = Succ (wpnNegate w1)  
 wpnNegate (Succ w1) = Pred (wpnNegate w1)  
 
@@ -65,10 +65,16 @@ wpnFromInteger i | i == 0 = Zero
 wpnQuotRem :: WeirdPeanoNumber -> WeirdPeanoNumber -> (WeirdPeanoNumber, WeirdPeanoNumber)
 wpnQuotRem _ Zero = error "Divide by Zero exception"
 wpnQuotRem Zero _ = (Zero, Zero) 
-wpnQuotRem w1 w2  = if wpnSignum w1 /= wpnSignum w2  then (wpnNegate (fst (absDiv w1 w2 0)), wpnNegate (snd (absDiv w1 w2 0)))  else absDiv w1 w2 0 where
-  absDiv w1 w2 n = recurs (wpnAbs w1) (wpnAbs w2) n where 
-    recurs w1 w2 n = if w1 >= w2 then recurs (w1 - w2) w2 (n + 1)
-        else if w1 == Zero then (wpnFromInteger n, Zero) else (wpnFromInteger n, w1)
+wpnQuotRem w1 w2  = 
+    if wpnSignum w1 /= wpnSignum w2  
+        then (wpnNegate (fst (absDiv w1 w2 0)), wpnNegate (snd (absDiv w1 w2 0)))  
+        else absDiv w1 w2 0 where
+          absDiv w1 w2 n = recurs (wpnAbs w1) (wpnAbs w2) n where 
+          recurs w1 w2 n = 
+            if w1 >= w2 then recurs (w1 - w2) w2 (n + 1)
+             else if w1 == Zero 
+                then (wpnFromInteger n, Zero) 
+                else (wpnFromInteger n, w1)
 
 instance Integral WeirdPeanoNumber where
     toInteger = wpnToInteger
@@ -83,7 +89,7 @@ instance Num WeirdPeanoNumber where
   abs         = wpnAbs
   signum      = wpnSignum
   fromInteger = wpnFromInteger
-
+  
 wpnToEnum :: Int -> WeirdPeanoNumber
 wpnToEnum i | i == 0 = Zero
             | i > 0  = Succ (wpnToEnum (i - 1))
@@ -98,8 +104,28 @@ instance Enum WeirdPeanoNumber where
   fromEnum  = wpnFromEnum
   toEnum    = wpnToEnum 
 
+
+-- Ну это с самого начала делалось так что, сделал и забыл)))
 instance Ord WeirdPeanoNumber where
-    (<=) x y = (wpnToInteger x) <= (wpnToInteger y) 
+  -- (<=) x y = (wpnToInteger x) <= (wpnToInteger y) 
+  (<=) x y = lessOrEqNorm x y where
+      lessOrEqNorm x y = lessOrEq (normalize x) (normalize y) 
+      lessOrEq Zero (Pred _)         = False
+      lessOrEq Zero _                = True
+      lessOrEq (Pred _) Zero         = False
+      lessOrEq (Succ _) Zero         = False
+      lessOrEq (Pred _) (Succ _)     = True
+      lessOrEq (Succ _) (Pred _)     = False
+      lessOrEq (Succ w1) (Succ w2)   = lessOrEqNorm (Pred (Succ w1)) (Pred (Succ w2))
+      lessOrEq (Pred w1) (Pred w2)   = lessOrEqNorm (Succ (Pred w1)) (Succ (Pred w2))
+      
+
+
 
 instance Real WeirdPeanoNumber where
   toRational w = toRational (wpnToInteger w)
+
+
+ss = Succ (Succ Zero)
+
+ssss = ss * ss

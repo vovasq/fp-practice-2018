@@ -6,8 +6,10 @@ data ReverseList a = RNil | RCons (ReverseList a) a
 
 rlistToList :: ReverseList a -> [a]
 rlistToList RNil            = []
-rlistToList (RCons lst1 l1) = l1 : rlistToList lst1
-
+rlistToList (RCons lst1 l1) = myAppend (RCons lst1 l1) [] where 
+  myAppend RNil lst = lst
+  myAppend (RCons lst1 l1) lst = myAppend lst1 (l1 : lst)
+ 
 
 listToRList :: [a] -> ReverseList a
 listToRList lst = foldl RCons RNil lst
@@ -16,7 +18,7 @@ listToRList lst = foldl RCons RNil lst
 instance (Eq a) => Eq (ReverseList a) where
   (==) RNil RNil = True
   (==) (RCons lst1 l1) (RCons lst2 l2) = 
-    if l1 == l2 then (==) lst1 lst2 else False  
+    if l1 == l2 then (==) lst1 lst2 else False   
 
 instance (Show a) => Show (ReverseList a) where
   show RNil = "RNil"
@@ -31,13 +33,16 @@ instance (Ord a) =>  Ord (ReverseList a) where
                                        | otherwise = False
 
 instance Semigroup (ReverseList a) where
-    (<>) lst1 RNil = lst1
-    (<>) lst1 (RCons lst2 l) = RCons (lst1 <> lst2) l
+  (<>) lst1 RNil = lst1
+  (<>) lst1 (RCons lst2 l) = RCons (lst1 <> lst2) l
 
 instance Monoid (ReverseList a) where
-    mempty = RNil
+  mempty = RNil
 
 instance Functor ReverseList where
-    fmap _ RNil = RNil
-    fmap f (RCons lst l) = RCons (fmap f lst) (f l)
+  fmap _ RNil = RNil
+  fmap f (RCons lst l) = RCons (fmap f lst) (f l)
 
+
+rl = RCons( RCons( RCons ( RCons (RNil) 4 ) 0) 6) 8
+l = [1..5]
