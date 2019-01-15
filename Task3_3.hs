@@ -33,5 +33,10 @@ instance Semigroup (DiffPSet a) where
 instance Monoid (DiffPSet a) where
   mempty = DiffPSet (\x -> False)
 
+-- тут идея в следующем: 
+-- знаем только отображение из множества A в B
+-- нельзя сделать никаких выводов о множестве B поэтому всегда false
 instance Functor PSet where
   fmap f (PSet fa) = PSet (\b -> False)
+
+
