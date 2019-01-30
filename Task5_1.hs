@@ -1,6 +1,8 @@
 module Task5_1 where
 
 import Todo(todo)
+import Control.Exception
+
 
 data DList a = DNil 
              | DCons { 
@@ -64,3 +66,81 @@ removeAt dlst index =
     remover (DCons l v (DCons _ rv r)) 0    = DCons l rv r 
     -- remover (DCons DNil v (DCons DNil rv DNil)) 0 = DCons DNil rv DNil 
     remover (DCons l v r) cnt                  = DCons l v (remover r (cnt - 1)) 
+
+
+
+
+assertEquals :: (Show a, Eq a) => (DList a)-> (DList a) -> String -> String 
+assertEquals actual supposed testName= let isOk = (actual == supposed) in
+  if isOk then "is OK " ++ testName ++ "\n"
+  else ("is FAILED " ++ testName 
+    ++ " with params:\nactual = " ++ (show actual)
+    ++ "\nsupposed = " ++ (show supposed) ++ "\n")
+
+dls   = list2dlist [1..5]
+dls6  = insertAt dls 1 777
+check = left (right dls6)
+
+
+-- -- insert to begining
+-- 1-2-3 insertAt 0 77 77-1-2-3
+
+test1 = assertEquals actual supposed "Insert to begining" 
+  where
+    inner    = list2dlist [1..3]
+    actual   = insertAt inner 0 777 
+    supposed = list2dlist $ [777] ++ [1..3]
+
+test2 = assertEquals actual supposed "Insert to end" 
+  where
+    inner    = list2dlist [1..3]
+    actual   = insertAt inner 2 777 
+    supposed = list2dlist $ [1..3] ++ [777] 
+
+
+test3 = assertEquals actual supposed "Insert to empty" 
+  where
+    inner    = list2dlist []
+    actual   = insertAt inner 0 777 
+    supposed = list2dlist [777] 
+
+test4 = assertEquals actual supposed "Insert to one element list" 
+  where
+    inner    = list2dlist [1]
+    actual   = insertAt inner 0 777 
+    supposed = list2dlist [1,777] 
+
+
+allTestCases = [test1,
+                test2,
+                test3,
+                test4] 
+
+
+runAllTests = do 
+ putStr $ runTest allTestCases 1
+  where 
+    runTest [] i = "All tests: " ++ (show $ i - 1) ++ " are finished\n"
+    runTest (test:tests) i =  
+      "TestCase # "
+      ++ (show i)
+      ++ " " ++ test 
+      ++ (runTest tests (i + 1))
+
+
+-- -- insert to begining
+-- 1-2-3 insertAt 0 77 77-1-2-3
+
+-- -- insert to middle
+-- 1-2 insertAt 1 77  1-77-2 
+
+-- -- insert to back 
+-- 1-2-3 insertAt 2 77 1-2-3-77r
+
+
+
+-- -- wrong insert index -> less zero
+-- 1-2-3 insertAt 3 77 "error"
+
+-- -- wrong insert index -> less zero
+-- 1-2-3 insertAt -1 "error"
